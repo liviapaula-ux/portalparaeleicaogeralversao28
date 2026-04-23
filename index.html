@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Benefícios - iFood</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --ifood-red: #ea1d2c;
+            --ifood-dark-red: #b01522;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f5;
+            color: #1f2937;
+        }
+
+        .ifood-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .ifood-btn-primary {
+            background-color: var(--ifood-red);
+            color: white;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        .ifood-btn-primary:hover {
+            background-color: var(--ifood-dark-red);
+        }
+
+        .input-flat {
+            width: 100%;
+            border-bottom: 1px solid #d1d5db;
+            padding: 8px 0;
+            font-size: 0.95rem;
+            outline: none;
+            background: transparent;
+        }
+
+        .input-flat:focus {
+            border-bottom-color: var(--ifood-red);
+        }
+
+        /* Estilo para Inputs com borda arredondada (conforme imagem dependentes) */
+        .input-rounded {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-rounded:focus {
+            border-color: #94a3b8;
+        }
+
+        .highlight-section {
+            background-color: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 10px;
+            padding: 1.25rem;
+        }
+
+        /* Opções de Beneficiário */
+        .option-box {
+            border: 1px solid #e5e7eb;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-box.active {
+            border-color: var(--ifood-red);
+            background-color: #fff5f5;
+            box-shadow: 0 4px 12px rgba(234, 29, 44, 0.05);
+        }
+
+        /* Assinatura Canvas */
+        #signature-pad {
+            border: 1px dashed #d1d5db;
+            background: #fafafa;
+            cursor: crosshair;
+            width: 100%;
+            height: 120px;
+        }
+
+        /* Navegação */
+        .page-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Toggles (Switch) */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 2px; bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--ifood-red); }
+        input:checked + .slider:before { transform: translateX(22px); }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4 cursor-pointer" onclick="showPage('home')">
+                <div class="bg-red-600 text-white p-2 rounded-lg font-black italic tracking-tighter text-xl">iFood</div>
+                <span class="font-bold text-gray-700 hidden sm:block">Portal de Benefícios</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <p class="text-xs font-bold text-gray-800">Rodolfo De Nadai</p>
+                    <p class="text-[10px] text-gray-400">ID: 30828194866</p>
+                </div>
+                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden border">
+                    <i class="fa-solid fa-user text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 mt-8">
+
+        <!-- DASHBOARD / HOME -->
+        <section id="home" class="page-content active">
+            <div class="mb-10 text-center md:text-left">
+                <h2 class="text-3xl font-bold text-gray-800">Protótipos mudanças no RH Digital | Eleição Geral</h2>
+                <p class="text-gray-500">Selecione uma das ferramentas abaixo para visualizar as implementações.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1: Vida -->
+                <div class="ifood-card p-6 hover:-translate-y-1 cursor-pointer group" onclick="showPage('vida')">
+                    <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-file-signature text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Indicação de Beneficiário</h3>
+                    <p class="text-sm text-gray-500">Faça a nomeação ou alteração dos beneficiários do seu Seguro de Vida Zurich.</p>
+                </div>
+
+                <!-- Card 2: Pet Eleição -->
+                <div class="ifood-card p-6 hover:-translate-y-1 cursor-pointer group" onclick="showPage('pet-eleicao')">
+                    <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-paw text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Eleição de Plano Pet</h3>
+                    <p class="text-sm text-gray-500">Contrate ou altere o plano de saúde para os seus pets usando os seus pontos.</p>
+                </div>
+
+                <!-- Card 3: Pet Inclusão -->
+                <div class="ifood-card p-6 hover:-translate-y-1 cursor-pointer group" onclick="showPage('pet-cadastro')">
+                    <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-plus-circle text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Inclusão de Novo Pet</h3>
+                    <p class="text-sm text-gray-500">Cadastre um novo amigo para a família e comece a utilizar os benefícios pet.</p>
+                </div>
+
+                <!-- Card 4: Dependentes -->
+                <div class="ifood-card p-6 hover:-translate-y-1 cursor-pointer group" onclick="showPage('dependentes')">
+                    <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-users-gear text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Gestão de Dependentes</h3>
+                    <p class="text-sm text-gray-500">Altere dados cadastrais ou gerencie a exclusão voluntária de dependentes.</p>
+                </div>
+
+                <!-- Card 5: Carteira Flex -->
+                <div class="ifood-card p-6 hover:-translate-y-1 cursor-pointer group" onclick="showPage('reembolso')">
+                    <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-red-600 mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-hand-holding-dollar text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Carteira Flex</h3>
+                    <p class="text-sm text-gray-500">Solicite reembolsos de saúde, bem-estar, vacinas e atividades físicas.</p>
+                </div>
+
+                <div class="ifood-card p-6 border-l-4 border-red-500 opacity-50 bg-gray-50">
+                    <div class="w-14 h-14 bg-gray-200 rounded-2xl flex items-center justify-center text-gray-400 mb-6">
+                        <i class="fa-solid fa-lock text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2 text-gray-400">Outros Serviços</h3>
+                    <p class="text-sm text-gray-300">Funcionalidades adicionais serão libertadas em breve no RH Digital.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO: CARTEIRA FLEX -->
+        <section id="reembolso" class="page-content">
+            <button onclick="showPage('home')" class="mb-6 flex items-center gap-2 text-gray-500 hover:text-red-600 transition font-medium">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao início
+            </button>
+            <div class="ifood-card p-8 max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-8 text-gray-800 text-center">Solicitação de Carteira Flex</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Tipo de reembolso</label>
+                        <select class="input-flat font-bold text-gray-800">
+                            <option>CARTEIRA FLEX</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Valor solicitado</label>
+                            <div class="flex items-center border-b border-gray-300">
+                                <span class="text-sm text-gray-400 mr-1">R$</span>
+                                <input type="number" id="valor-solicitado" class="w-full py-2 outline-none" placeholder="0,00">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Valor a Reembolsar</label>
+                            <input type="text" class="input-flat text-gray-400" value="R$ 0,00" readonly>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Saldo Restante</label>
+                            <input type="text" class="input-flat text-gray-400 font-bold" value="R$ 3.600,00" readonly>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Categoria *</label>
+                            <select id="reembolso-cat" class="input-flat" onchange="updateReembolsoSub()">
+                                <option value="" disabled selected>Selecione...</option>
+                                <option value="saude">Atendimento saúde</option>
+                                <option value="vacinas">Vacinas</option>
+                                <option value="atividade">Atividade física</option>
+                                <option value="desenvolvimento">Complemento desenvolvimento pessoal</option>
+                                <option value="familia">Apoio familiar</option>
+                            </select>
+                        </div>
+                        <div id="subcat-container" style="display: none;">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Sub-categoria *</label>
+                            <select id="reembolso-sub" class="input-flat"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Nome do prestador de serviço *</label>
+                        <input type="text" class="input-flat" placeholder="Ex: Nome da clínica, farmácia ou profissional">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Mês/Data emissão da NF *</label>
+                        <input type="date" class="input-flat">
+                    </div>
+                    <div class="pt-4">
+                        <button onclick="triggerFileUpload()" class="ifood-btn-primary w-full flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> ANEXAR COMPROVANTE
+                        </button>
+                        <p id="file-feedback" class="text-[10px] text-gray-400 mt-2 text-center italic">Nenhum comprovante selecionado.</p>
+                        <input type="file" id="hidden-file-input" class="hidden" onchange="handleFileSelect(this)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO: GESTÃO DE DEPENDENTES -->
+        <section id="dependentes" class="page-content">
+            <button onclick="showPage('home')" class="mb-6 flex items-center gap-2 text-gray-500 hover:text-red-600 transition font-medium">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao início
+            </button>
+            <div class="ifood-card p-8 max-w-lg mx-auto relative">
+                <!-- Botão Fechar Mock -->
+                <button class="absolute top-4 right-6 text-gray-300 text-xl" onclick="showPage('home')">&times;</button>
+                
+                <h2 class="text-xl font-bold mb-8 text-center text-[#374151]">Solicitar alteração de dependente</h2>
+                
+                <div class="space-y-4">
+                    <!-- Nome Registro -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Nome de registro</label>
+                        <input type="text" class="input-rounded text-gray-800" value="Eduardo Camara Gatto">
+                    </div>
+
+                    <!-- Nome Social -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Nome social</label>
+                        <input type="text" class="input-rounded text-gray-800" placeholder="">
+                    </div>
+
+                    <!-- CPF e Parentesco -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-600 mb-1 block">CPF</label>
+                            <input type="text" class="input-rounded text-gray-800" value="475.295.828-79">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-600 mb-1 block">Parentesco</label>
+                            <select class="input-rounded text-gray-800 bg-white">
+                                <option>Filho(A)</option>
+                                <option>Cônjuge</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Nascimento e Sexo -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-semibold text-gray-600 mb-1 block">Data de nascimento</label>
+                            <div class="relative">
+                                <input type="text" class="input-rounded text-gray-800" value="27/09/2013">
+                                <i class="fa-regular fa-calendar absolute right-3 top-3 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-600 mb-1 block">Sexo</label>
+                            <select class="input-rounded text-gray-800 bg-white">
+                                <option>Masculino</option>
+                                <option>Feminino</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Estado Civil -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Estado civil</label>
+                        <select class="input-rounded text-gray-800 bg-white">
+                            <option>Solteiro(A)</option>
+                            <option>Casado(A)</option>
+                        </select>
+                    </div>
+
+                    <!-- Nome da Mãe -->
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600 mb-1 block">Nome da mãe</label>
+                        <input type="text" class="input-rounded text-gray-800" value="Livia Paula Camara Gatto">
+                    </div>
+
+                    <!-- Toggles -->
+                    <div class="flex justify-between items-center py-2 px-2">
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-gray-600 uppercase mb-2">PCD?</p>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-gray-600 uppercase mb-2">Universitário?</p>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-gray-600 uppercase mb-2">Dependente IRRF?</p>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Bloco Exclusão Plano (Revertido conforme imagem) -->
+                    <div class="bg-[#FEF2F2] p-6 rounded-xl mt-6 border border-[#FEE2E2]">
+                        <div class="flex items-center gap-3 mb-4">
+                            <input type="checkbox" id="checkExclusao" class="w-6 h-6 accent-red-600 cursor-pointer" onchange="toggleExclusaoBloco()">
+                            <label for="checkExclusao" class="text-base font-bold text-[#B91C1C] uppercase cursor-pointer tracking-tight">SOLICITAÇÃO DE RETIRADA DE DEPENDENTE NO PLANO DE SAÚDE</label>
+                        </div>
+                        
+                        <div id="blocoAceiteDependente" class="space-y-4" style="display: none;">
+                            <div class="h-px bg-red-100 w-full mb-4"></div>
+                            <p class="text-sm font-bold text-[#1F2937] leading-relaxed">Solicito de forma voluntária a exclusão do dependente indicado do plano empresarial:</p>
+                            
+                            <div class="bg-white p-5 rounded-2xl border border-red-50 text-sm text-[#6B7280] space-y-3 shadow-sm">
+                                <p class="flex items-start gap-2"><span class="text-gray-400 mt-1">•</span> <span>A exclusão do dependente será realizada conforme minha solicitação;</span></p>
+                                <p class="flex items-start gap-2"><span class="text-gray-400 mt-1">•</span> <span>Reativação futura exige cumprimento de novas carências;</span></p>
+                                <p class="flex items-start gap-2"><span class="text-gray-400 mt-1">•</span> <span>Apenas permitida em períodos de Eleição de Benefícios.</span></p>
+                            </div>
+                            
+                            <div class="flex gap-4 pt-2">
+                                <button type="button" onclick="showAlert('Aguarde a aprovação do nosso time, e realize a eleição de alteração familiar. (SLA - 2 dias úteis)', 'success')" class="bg-[#10B981] text-white font-bold px-6 py-3 rounded-lg uppercase text-xs hover:bg-[#059669] transition shadow-sm">De acordo</button>
+                                <button type="button" onclick="cancelarExclusao()" class="bg-[#E5E7EB] text-[#4B5563] font-bold px-6 py-3 rounded-lg uppercase text-xs hover:bg-[#D1D5DB] transition shadow-sm">Não concordo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botão Anexar Comprovante -->
+                    <div class="pt-4 text-center">
+                        <button class="ifood-btn-primary w-full !py-4" onclick="triggerFileUpload()">ANEXAR COMPROVANTE</button>
+                        <p class="text-[10px] text-red-600 font-medium mt-3">* É obrigatório anexar os documentos comprobatórios, além do RG e do CPF</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO: CADASTRO PET -->
+        <section id="pet-cadastro" class="page-content">
+            <button onclick="showPage('home')" class="mb-6 flex items-center gap-2 text-gray-500 hover:text-red-600 transition font-medium">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao início
+            </button>
+            <div class="ifood-card p-8 max-w-md mx-auto">
+                <div class="flex flex-col items-center mb-8">
+                    <div class="bg-red-50 p-4 rounded-full text-red-600 mb-4"><i class="fa-solid fa-shield-dog text-3xl"></i></div>
+                    <h2 class="text-2xl font-bold">Cadastro de Pet</h2>
+                </div>
+                <div class="space-y-6">
+                    <input type="text" class="input-flat" placeholder="Nome do Pet *">
+                    <select class="input-flat"><option>Cachorro</option><option>Gato</option></select>
+                    <input type="date" class="input-flat">
+                    <button onclick="showAlert('Será aberta uma eleição que permite que você retire pontos dos benefícios VA/VR, cultura, viagens, carteira flex, farmácia, mobilidade, e contrate o plano de seu pet.', 'info')" class="ifood-btn-primary w-full">Confirmar Cadastro</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO: ELEIÇÃO PET -->
+        <section id="pet-eleicao" class="page-content">
+            <button onclick="showPage('home')" class="mb-6 flex items-center gap-2 text-gray-500 hover:text-red-600 transition font-medium">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao início
+            </button>
+
+            <!-- Cabeçalho Saúde Pet -->
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-full border-2 border-red-500 flex items-center justify-center text-red-500">
+                    <i class="fa-solid fa-plus text-sm"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Saúde Pet</h2>
+            </div>
+
+            <!-- Bloco Informativo de Regras -->
+            <div class="bg-white border-l-4 border-red-600 rounded-r-xl shadow-sm p-6 mb-8">
+                <h3 class="font-bold text-gray-800 mb-2">Eleição de Inclusão/Exclusão Pet</h3>
+                <p class="text-sm text-gray-600 mb-4">Você pode cadastrar ou retirar pets do seu plano a qualquer momento. <strong>Regras importantes:</strong></p>
+                <ul class="text-sm text-gray-600 list-disc ml-5 space-y-1">
+                    <li>Permanência mínima contratual de 6 meses para animais vivos.</li>
+                    <li>Fora do período de eleição padrão, só é permitido utilizar pontos dos benefícios <strong>não seguráveis e VA/VR</strong>.</li>
+                </ul>
+            </div>
+
+            <!-- Botão Incluir/Editar -->
+            <button onclick="showPage('pet-cadastro')" class="ifood-btn-primary mb-10 !py-2 !px-4 text-sm">INCLUIR / EDITAR PET</button>
+
+            <!-- Grid de Planos -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                
+                <!-- Emergencial -->
+                <div class="ifood-card p-6 flex flex-col">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="bg-red-50 p-2 rounded-lg text-red-600"><i class="fa-solid fa-ambulance text-lg"></i></div>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Pontos: 20</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-6 text-gray-800">Emergencial</h4>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">SELECIONE O(S) PET(S):</p>
+                    <div class="space-y-2 mb-8">
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Luna 🐶</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Max 🐱</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button class="border border-gray-200 text-gray-300 py-2 rounded-lg text-xs font-bold cursor-not-allowed uppercase">Escolher</button>
+                        <button class="border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 uppercase">Detalhes</button>
+                    </div>
+                    <p class="text-[10px] text-red-500 font-medium text-center">Saldo insuficiente para realizar essa escolha.</p>
+                </div>
+
+                <!-- Básico -->
+                <div class="ifood-card p-6 flex flex-col">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="bg-purple-50 p-2 rounded-lg text-purple-600"><i class="fa-solid fa-stethoscope text-lg"></i></div>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Pontos: 40</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-6 text-gray-800">Básico</h4>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">SELECIONE O(S) PET(S):</p>
+                    <div class="space-y-2 mb-8">
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Luna 🐶</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Max 🐱</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button class="border border-gray-200 text-gray-300 py-2 rounded-lg text-xs font-bold cursor-not-allowed uppercase">Escolher</button>
+                        <button class="border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 uppercase">Detalhes</button>
+                    </div>
+                    <p class="text-[10px] text-red-500 font-medium text-center">Saldo insuficiente para realizar essa escolha.</p>
+                </div>
+
+                <!-- Premium Plus -->
+                <div class="ifood-card p-6 flex flex-col">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="bg-blue-50 p-2 rounded-lg text-blue-600"><i class="fa-solid fa-gem text-lg"></i></div>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Pontos: 80</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-6 text-gray-800">Premium Plus</h4>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">SELECIONE O(S) PET(S):</p>
+                    <div class="space-y-2 mb-8">
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Luna 🐶</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Max 🐱</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button class="border border-gray-200 text-gray-300 py-2 rounded-lg text-xs font-bold cursor-not-allowed uppercase">Escolher</button>
+                        <button class="border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 uppercase">Detalhes</button>
+                    </div>
+                    <p class="text-[10px] text-red-500 font-medium text-center">Saldo insuficiente para realizar essa escolha.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SEÇÃO: INDICAÇÃO BENEFICIÁRIO (ZURICH) -->
+        <section id="vida" class="page-content">
+            <button onclick="showPage('home')" class="mb-6 flex items-center gap-2 text-gray-500 hover:text-red-600 transition font-medium">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao início
+            </button>
+            <div id="zurich-doc" class="bg-white p-12 max-w-4xl mx-auto shadow-2xl border-t-8 border-red-600 mb-20">
+                <!-- Header -->
+                <div class="flex justify-between mb-8 pb-6 border-b">
+                    <div>
+                        <h2 class="text-xs font-black tracking-widest text-gray-400 mb-1">ZURICH</h2>
+                        <h1 class="text-lg font-bold text-gray-800 leading-tight">Seguro Zurich Vida em Grupo e/ou<br>Acidentes Pessoais Coletivos</h1>
+                        <p class="text-sm text-red-600 font-semibold mt-1">Termo de Nomeação ou Alteração de Beneficiário</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[9px] text-gray-300 uppercase leading-none">Docusign Envelope ID:<br>57E23278-D4D7-47D5-ABC7-07CE9DC82921</p>
+                    </div>
+                </div>
+
+                <!-- Info Cadastral -->
+                <div class="section-title bg-gray-50 p-2 text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-widest border-l-4 border-red-600">Informações Cadastrais</div>
+                <div class="grid grid-cols-2 gap-x-12 gap-y-6 mb-8">
+                    <div><label class="text-[9px] font-bold text-gray-400 uppercase">Nome</label><input type="text" class="input-flat font-bold" value="Rodolfo De Nadai"></div>
+                    <div><label class="text-[9px] font-bold text-gray-400 uppercase">CPF</label><input type="text" class="input-flat font-bold" value="308.281.948-66"></div>
+                    <div><label class="text-[9px] font-bold text-gray-400 uppercase">Nº de Apólice</label><input type="text" class="input-flat text-gray-400" value="3890" readonly></div>
+                    <div><label class="text-[9px] font-bold text-gray-400 uppercase">Estipulante</label><input type="text" class="input-flat text-gray-400" value="iFood Agencia" readonly></div>
+                </div>
+
+                <!-- Designação -->
+                <div class="section-title bg-gray-50 p-2 text-[10px] font-bold text-gray-400 uppercase mb-4 tracking-widest border-l-4 border-red-600">Designação de Beneficiários</div>
+                <div class="space-y-4 mb-8">
+                    <div class="option-box" onclick="selectVidaOption(1)" id="vida-opt1">
+                        <div class="flex gap-3">
+                            <input type="radio" name="beneficiaryOpt" id="vida-radio1" class="accent-red-600 mt-1">
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">1ª Opção - Pagamento conforme Legislação Vigente</p>
+                                <p class="text-[10px] text-gray-500 mt-1 leading-relaxed">Na ausência de designação específica, a indenização será paga conforme o Art. 792 do Código Civil (50% ao cônjuge não separado judicialmente e o restante aos herdeiros).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="option-box" onclick="selectVidaOption(2)" id="vida-opt2">
+                        <div class="flex gap-3">
+                            <input type="radio" name="beneficiaryOpt" id="vida-radio2" class="accent-red-600 mt-1">
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">2ª Opção - Designação Específica de Beneficiários</p>
+                                <p class="text-[10px] text-gray-500 mt-1">Designo como meus beneficiários as pessoas abaixo relacionadas:</p>
+                            </div>
+                        </div>
+                        <div id="vida-table-container" class="mt-4" style="display: none;">
+                            <table class="w-full text-[11px] text-left">
+                                <thead>
+                                    <tr class="text-gray-400 border-b">
+                                        <th class="py-2">Nome do Beneficiário</th>
+                                        <th class="py-2">Parentesco</th>
+                                        <th class="py-2 text-right w-24">% Participação</th>
+                                        <th class="py-2 no-print w-10"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vida-beneficiary-rows"></tbody>
+                            </table>
+                            <button type="button" onclick="addVidaRow()" class="mt-3 text-[9px] font-bold text-red-600 uppercase no-print flex items-center gap-1">
+                                <i class="fa-solid fa-plus"></i> Adicionar Beneficiário
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-[10px] text-gray-400 leading-relaxed mb-8 text-justify italic bg-gray-50 p-4 rounded-lg">
+                    Pela presente, estou ciente da minha inclusão na apólice de seguro de pessoas contratada pelo Estipulante acima mencionado... Esclareço que tal opção atende meus interesses próprios e pessoais e, portanto, deve ser considerada boa, firme e valiosa para todos os fins e efeitos de direito. A SEGURADORA realiza o tratamento de dados pessoais em conformidade com a LGPD (Lei nº 13.709/2018).
+                </div>
+
+                <!-- Assinatura -->
+                <div class="grid grid-cols-2 gap-12 items-end">
+                    <div>
+                        <label class="text-[9px] font-bold text-gray-400 uppercase mb-2 block">Assinatura do Proponente</label>
+                        <canvas id="signature-pad"></canvas>
+                        <button onclick="clearSignature()" class="text-[8px] text-gray-400 uppercase mt-1 no-print">Limpar assinatura</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div><label class="text-[9px] font-bold text-gray-400 uppercase">Cidade</label><input type="text" class="input-flat text-xs" value="Jundiaí" id="vida-cidade"></div>
+                        <div><label class="text-[9px] font-bold text-gray-400 uppercase">Data</label><input type="text" class="input-flat text-xs" value="23 de abril de 2026" id="vida-data"></div>
+                        <p class="text-[10px] text-gray-300 uppercase pt-2">Local e Data da Assinatura</p>
+                    </div>
+                </div>
+
+                <div class="mt-10 pt-4 border-t text-[8px] text-gray-300 leading-none">
+                    Produtos registrados na SUSEP sob os números 15414.901059/2014-36 (VG FE), 15414.901057/2014-47 (VG TM), 15414.901058/2014-91 (VG Global). Mod. 201/102 - NOV/2020.
+                </div>
+            </div>
+            <div class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t p-4 flex justify-center z-[60] no-print">
+                <button onclick="downloadPDF()" class="ifood-btn-primary flex items-center gap-3 shadow-xl">
+                    <i class="fa-solid fa-file-pdf"></i> Finalizar e Baixar PDF
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DE ALERTAS -->
+    <div id="app-modal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl scale-95 transition-transform" id="modal-content">
+            <div id="modal-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl"></div>
+            <h3 id="modal-title" class="text-xl font-bold mb-3">Título</h3>
+            <p id="modal-body" class="text-sm text-gray-500 leading-relaxed mb-8"></p>
+            <button onclick="closeModal()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl">Entendido</button>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            window.scrollTo(0,0);
+            if(pageId === 'vida') initSignature();
+        }
+
+        function toggleExclusaoBloco() {
+            const check = document.getElementById('checkExclusao');
+            const bloco = document.getElementById('blocoAceiteDependente');
+            bloco.style.display = check.checked ? 'block' : 'none';
+        }
+
+        function cancelarExclusao() {
+            document.getElementById('checkExclusao').checked = false;
+            toggleExclusaoBloco();
+            showAlert('Você CANCELOU o pedido de exclusão do dependente', 'error');
+        }
+
+        const subCats = {
+            'saude': ['Médico', 'Odontológico', 'Nutricionista', 'Psicológico', 'Homeopatia', 'Massagens'],
+            'vacinas': ['Para mim', 'Para meus dependentes'],
+            'atividade': ['Mensalidade Wellhub', 'Mensalidade TotalPass', 'Mensalidade academia/clube/aula particular', 'Personal trainer', 'Inscrições em competições'],
+            'desenvolvimento': ['Compra de livros', 'Graduação', 'Pós graduação', 'Cursos livres', 'Certificações', 'Idiomas', 'Pagamento de assinaturas IA'],
+            'familia': ['Material escolar filhos', 'Atividades extracurriculares filhos', 'Consultas médicas pais']
+        };
+
+        function updateReembolsoSub() {
+            const cat = document.getElementById('reembolso-cat').value;
+            const sub = document.getElementById('reembolso-sub');
+            const container = document.getElementById('subcat-container');
+            if(cat && subCats[cat]) {
+                sub.innerHTML = subCats[cat].map(s => `<option>${s}</option>`).join('');
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function triggerFileUpload() { document.getElementById('hidden-file-input').click(); }
+        function handleFileSelect(input) {
+            const feedback = document.getElementById('file-feedback');
+            if(input.files && input.files[0]) {
+                feedback.innerHTML = `<i class="fa-solid fa-check-circle text-green-500"></i> Comprovante: <b>${input.files[0].name}</b>`;
+            } else {
+                feedback.innerText = "Nenhum comprovante selecionado.";
+            }
+        }
+
+        // Lógica Vida (Zurich)
+        function selectVidaOption(opt) {
+            document.querySelectorAll('#vida .option-box').forEach(el => el.classList.remove('active'));
+            document.getElementById(`vida-opt${opt}`).classList.add('active');
+            document.getElementById(`vida-radio${opt}`).checked = true;
+            document.getElementById('vida-table-container').style.display = opt === 2 ? 'block' : 'none';
+        }
+
+        function addVidaRow(n="", r="", p="") {
+            const tbody = document.getElementById('vida-beneficiary-rows');
+            const tr = document.createElement('tr');
+            tr.className = "border-b hover:bg-gray-50";
+            tr.innerHTML = `
+                <td class="py-2"><input type="text" class="w-full bg-transparent outline-none font-medium" value="${n}" placeholder="Nome Completo"></td>
+                <td class="py-2"><input type="text" class="w-full bg-transparent outline-none" value="${r}" placeholder="Ex: Filho"></td>
+                <td class="py-2 text-right flex items-center justify-end gap-1"><input type="text" class="w-8 bg-transparent outline-none text-right font-bold text-red-600" value="${p}">%</td>
+                <td class="py-2 text-right no-print">
+                    <button onclick="this.closest('tr').remove()" class="text-gray-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function showAlert(msg, type) {
+            const modal = document.getElementById('app-modal');
+            const icon = document.getElementById('modal-icon');
+            const title = document.getElementById('modal-title');
+            const body = document.getElementById('modal-body');
+            body.innerText = msg;
+            if(type === 'success') {
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl bg-green-50 text-green-600";
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                title.innerText = "Solicitação Enviada";
+            } else if(type === 'error') {
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl bg-red-50 text-red-600";
+                icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                title.innerText = "Ação Cancelada";
+            } else {
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl bg-blue-50 text-blue-600";
+                icon.innerHTML = '<i class="fa-solid fa-info"></i>';
+                title.innerText = "Atenção";
+            }
+            modal.style.display = 'flex';
+            setTimeout(() => document.getElementById('modal-content').classList.add('scale-100'), 10);
+        }
+
+        function closeModal() {
+            document.getElementById('modal-content').classList.remove('scale-100');
+            setTimeout(() => document.getElementById('app-modal').style.display = 'none', 200);
+        }
+
+        let canvas, ctx, drawing = false;
+        function initSignature() {
+            canvas = document.getElementById('signature-pad');
+            if(!canvas) return;
+            ctx = canvas.getContext('2d');
+            const ratio = window.devicePixelRatio || 1;
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+            
+            const start = (e) => { drawing = true; draw(e); };
+            const stop = () => { drawing = false; ctx.beginPath(); };
+            const move = (e) => draw(e);
+
+            canvas.addEventListener('mousedown', start);
+            canvas.addEventListener('mouseup', stop);
+            canvas.addEventListener('mousemove', move);
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e.touches[0]); });
+            canvas.addEventListener('touchend', stop);
+            canvas.addEventListener('touchmove', (e) => { e.preventDefault(); move(e.touches[0]); });
+        }
+
+        function draw(e) {
+            if(!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#111';
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        async function downloadPDF() {
+            const doc = document.getElementById('zurich-doc');
+            html2canvas(doc, { scale: 3, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const w = pdf.internal.pageSize.getWidth();
+                const h = (canvas.height * w) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, w, h);
+                pdf.save('Termo_Nomeacao_Zurich_iFood.pdf');
+            });
+        }
+
+        window.onload = () => {
+            selectVidaOption(2);
+            addVidaRow("Gabriel Lazarini Meleti De Nadai", "Filho", "50");
+            addVidaRow("Claudia Lazarini Meleti", "Esposa", "50");
+            initSignature();
+        };
+    </script>
+</body>
+</html>
