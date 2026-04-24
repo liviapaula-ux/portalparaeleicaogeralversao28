@@ -255,7 +255,6 @@
                 <i class="fa-solid fa-arrow-left"></i> Voltar ao início
             </button>
 
-            <!-- Cabeçalho Previdência -->
             <div class="flex items-center justify-between mb-8">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-full border-2 border-red-500 flex items-center justify-center text-red-500">
@@ -268,10 +267,8 @@
                 </div>
             </div>
 
-            <!-- Card Central de Alocação -->
             <div class="max-w-lg mx-auto">
                 <div class="ifood-card p-10 flex flex-col items-center">
-                    <!-- Icone Categoria -->
                     <div class="w-16 h-12 bg-red-50 rounded-full flex items-center justify-center text-purple-600 mb-6">
                         <i class="fa-solid fa-vault text-xl"></i>
                     </div>
@@ -297,10 +294,13 @@
                             </div>
                         </div>
 
-                        <!-- Caixa de Estimativa -->
-                        <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 text-center">
+                        <div class="bg-gray-50 border border-gray-100 rounded-xl p-6 text-center">
+                            <div class="bg-red-50 text-red-600 font-black rounded-lg py-3 px-4 mb-4 text-sm shadow-sm border border-red-100">
+                                Investimento Ifood (50%): <span id="prev-ifood-contribution">R$ 50,00</span>
+                            </div>
+
                             <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Estimativa de investimento</p>
-                            <p class="text-sm font-black text-gray-800">VALOR MENSAL PREVIDÊNCIA: <span class="text-red-600" id="prev-total-value">R$ 150,00</span></p>
+                            <p class="text-sm font-black text-gray-800 uppercase tracking-tight">VALOR MENSAL PREVIDÊNCIA: <span class="text-red-600" id="prev-total-value">R$ 150,00</span></p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3 pt-4">
@@ -466,20 +466,24 @@
                             <input type="checkbox" id="checkExclusao" class="w-6 h-6 accent-red-600 cursor-pointer" onchange="toggleExclusaoBloco()">
                             <label for="checkExclusao" class="text-base font-bold text-[#B91C1C] uppercase cursor-pointer tracking-tight">SOLICITAÇÃO DE RETIRADA DE DEPENDENTE NO PLANO DE SAÚDE</label>
                         </div>
+                        
                         <div id="blocoAceiteDependente" class="space-y-4" style="display: none;">
                             <div class="h-px bg-red-100 w-full mb-4"></div>
                             <p class="text-sm font-bold text-[#1F2937] leading-relaxed">Solicito de forma voluntária a exclusão do dependente indicado do plano empresarial:</p>
+                            
                             <div class="bg-white p-5 rounded-2xl border border-red-50 text-sm text-[#6B7280] space-y-3 shadow-sm">
                                 <p class="flex items-start gap-2"><span class="text-gray-400 mt-1">•</span> <span>A exclusão do dependente será realizada conforme minha solicitação;</span></p>
                                 <p class="flex items-start gap-2"><span class="text-gray-400 mt-1">•</span> <span>Reativação futura exige cumprimento de novas carências;</span></p>
                                 <p class="flex items-start gap-2"><span class="text-gray-400 mt-1">•</span> <span>Apenas permitida em períodos de Eleição de Benefícios.</span></p>
                             </div>
+                            
                             <div class="flex gap-4 pt-2">
                                 <button type="button" onclick="showAlert('Aguarde a aprovação do nosso time, e realize a eleição de alteração familiar. (SLA - 2 dias úteis)', 'success')" class="bg-[#10B981] text-white font-bold px-6 py-3 rounded-lg uppercase text-xs hover:bg-[#059669] transition shadow-sm">De acordo</button>
                                 <button type="button" onclick="cancelarExclusao()" class="bg-[#E5E7EB] text-[#4B5563] font-bold px-6 py-3 rounded-lg uppercase text-xs hover:bg-[#D1D5DB] transition shadow-sm">Não concordo</button>
                             </div>
                         </div>
                     </div>
+
                     <div class="pt-4 text-center">
                         <button class="ifood-btn-primary w-full !py-4" onclick="triggerFileUpload()">ANEXAR COMPROVANTE</button>
                         <p class="text-[10px] text-red-600 font-medium mt-3">* É obrigatório anexar os documentos comprobatórios, além do RG e do CPF</p>
@@ -488,7 +492,7 @@
             </div>
         </section>
 
-        <!-- SEÇÃO: CADASTRO PET -->
+        <!-- SEÇÃO: CADASTRO PET (ATUALIZADA) -->
         <section id="pet-cadastro" class="page-content">
             <button onclick="showPage('home')" class="mb-6 flex items-center gap-2 text-gray-500 hover:text-red-600 transition font-medium">
                 <i class="fa-solid fa-arrow-left"></i> Voltar ao início
@@ -502,7 +506,35 @@
                     <input type="text" class="input-flat" placeholder="Nome do Pet *">
                     <select class="input-flat"><option>Cachorro</option><option>Gato</option></select>
                     <input type="date" class="input-flat">
-                    <button onclick="showAlert('Será aberta uma eleição que permite que você retire pontos dos benefícios VA/VR, cultura, viagens, carteira flex, farmácia, mobilidade, e contrate o plano de seu pet.', 'info')" class="ifood-btn-primary w-full">Confirmar Cadastro</button>
+                    
+                    <!-- Sessão de Planos -->
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-2 block tracking-widest">Selecione o Plano</label>
+                        <select class="input-flat font-medium">
+                            <option>Telemedicina Pet: Gratuito</option>
+                            <option>Básico: 40 reais</option>
+                            <option>Plus: 90 reais</option>
+                            <option>Total: 160 reais</option>
+                            <option>Top: 320 reais</option>
+                        </select>
+                    </div>
+
+                    <!-- Opções de Pagamento -->
+                    <div class="space-y-3 pt-2">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="pay-payroll" class="w-5 h-5 accent-red-600 rounded">
+                            <span class="text-sm font-medium text-gray-700">Desconto em folha</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="pay-credit" class="w-5 h-5 accent-red-600 rounded">
+                            <span class="text-sm font-medium text-gray-700">Cartão de crédito</span>
+                        </label>
+                    </div>
+
+                    <button onclick="processPetRegistration()" class="ifood-btn-primary w-full mt-4">Confirmar Cadastro</button>
+                    
+                    <!-- Rodapé informativo -->
+                    <p class="text-[10px] text-gray-400 italic text-center mt-4">os planos Emergencial e De boa Senior, sairão de linha</p>
                 </div>
             </div>
         </section>
@@ -518,37 +550,8 @@
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800">Saúde Pet</h2>
             </div>
-            <div class="bg-white border-l-4 border-red-600 rounded-r-xl shadow-sm p-6 mb-8">
-                <h3 class="font-bold text-gray-800 mb-2">Eleição de Inclusão/Exclusão Pet</h3>
-                <p class="text-sm text-gray-600 mb-4">Você pode cadastrar ou retirar pets do seu plano a qualquer momento. <strong>Regras importantes:</strong></p>
-                <ul class="text-sm text-gray-600 list-disc ml-5 space-y-1">
-                    <li>Permanência mínima contratual de 6 meses para animais vivos.</li>
-                    <li>Fora do período de eleição padrão, só é permitido utilizar pontos dos benefícios <strong>não seguráveis e VA/VR</strong>.</li>
-                </ul>
-            </div>
             <button onclick="showPage('pet-cadastro')" class="ifood-btn-primary mb-10 !py-2 !px-4 text-sm">INCLUIR / EDITAR PET</button>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                <div class="ifood-card p-6 flex flex-col">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="bg-red-50 p-2 rounded-lg text-red-600"><i class="fa-solid fa-ambulance text-lg"></i></div>
-                        <span class="text-xs font-bold text-gray-400 uppercase">Pontos: 20</span>
-                    </div>
-                    <h4 class="text-xl font-bold mb-6 text-gray-800">Emergencial</h4>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">SELECIONE O(S) PET(S):</p>
-                    <div class="space-y-2 mb-8">
-                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Luna 🐶</span>
-                        </label>
-                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Max 🐱</span>
-                        </label>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mb-4">
-                        <button class="border border-gray-200 text-gray-300 py-2 rounded-lg text-xs font-bold cursor-not-allowed uppercase">Escolher</button>
-                        <button class="border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 uppercase">Detalhes</button>
-                    </div>
-                    <p class="text-[10px] text-red-500 font-medium text-center">Saldo insuficiente para realizar essa escolha.</p>
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
                 <div class="ifood-card p-6 flex flex-col">
                     <div class="flex justify-between items-start mb-6">
                         <div class="bg-purple-50 p-2 rounded-lg text-purple-600"><i class="fa-solid fa-stethoscope text-lg"></i></div>
@@ -572,10 +575,10 @@
                 </div>
                 <div class="ifood-card p-6 flex flex-col">
                     <div class="flex justify-between items-start mb-6">
-                        <div class="bg-blue-50 p-2 rounded-lg text-blue-600"><i class="fa-solid fa-gem text-lg"></i></div>
-                        <span class="text-xs font-bold text-gray-400 uppercase">Pontos: 80</span>
+                        <div class="bg-red-50 p-2 rounded-lg text-red-600"><i class="fa-solid fa-kit-medical text-lg"></i></div>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Pontos: 90</span>
                     </div>
-                    <h4 class="text-xl font-bold mb-6 text-gray-800">Premium Plus</h4>
+                    <h4 class="text-xl font-bold mb-6 text-gray-800">Plus</h4>
                     <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">SELECIONE O(S) PET(S):</p>
                     <div class="space-y-2 mb-8">
                         <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
@@ -591,6 +594,51 @@
                     </div>
                     <p class="text-[10px] text-red-500 font-medium text-center">Saldo insuficiente para realizar essa escolha.</p>
                 </div>
+                <div class="ifood-card p-6 flex flex-col">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="bg-blue-50 p-2 rounded-lg text-blue-600"><i class="fa-solid fa-gem text-lg"></i></div>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Pontos: 160</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-6 text-gray-800">Total</h4>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">SELECIONE O(S) PET(S):</p>
+                    <div class="space-y-2 mb-8">
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Luna 🐶</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Max 🐱</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button class="border border-gray-200 text-gray-300 py-2 rounded-lg text-xs font-bold cursor-not-allowed uppercase">Escolher</button>
+                        <button class="border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 uppercase">Detalhes</button>
+                    </div>
+                    <p class="text-[10px] text-red-500 font-medium text-center">Saldo insuficiente para realizar essa escolha.</p>
+                </div>
+                <div class="ifood-card p-6 flex flex-col">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="bg-yellow-50 p-2 rounded-lg text-yellow-600"><i class="fa-solid fa-shield-dog text-lg"></i></div>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Pontos: 320</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-6 text-gray-800">Top</h4>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase mb-3">SELECIONE O(S) PET(S):</p>
+                    <div class="space-y-2 mb-8">
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Luna 🐶</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="checkbox" class="accent-red-600"> <span class="text-sm font-medium">Max 🐱</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button class="border border-gray-200 text-gray-300 py-2 rounded-lg text-xs font-bold cursor-not-allowed uppercase">Escolher</button>
+                        <button class="border border-gray-300 text-gray-500 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 uppercase">Detalhes</button>
+                    </div>
+                    <p class="text-[10px] text-red-500 font-medium text-center">Saldo insuficiente para realizar essa escolha.</p>
+                </div>
+            </div>
+            <div class="mt-12 text-center">
+                <p class="text-xs text-gray-400 italic">os planos Emergencial e De boa Senior, sairão de linha</p>
             </div>
         </section>
 
@@ -688,7 +736,8 @@
             <div id="modal-icon" class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl"></div>
             <h3 id="modal-title" class="text-xl font-bold mb-3">Título</h3>
             <p id="modal-body" class="text-sm text-gray-500 leading-relaxed mb-8"></p>
-            <button onclick="closeModal()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl">Entendido</button>
+            <button id="modal-primary-btn" onclick="closeModal()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-xl mb-2 tracking-wide">Entendido</button>
+            <button id="modal-secondary-btn" onclick="closeModal()" class="w-full bg-gray-100 text-gray-500 font-bold py-3 rounded-xl hidden tracking-wide">Voltar</button>
         </div>
     </div>
 
@@ -717,10 +766,46 @@
             const points = parseInt(val);
             const contribution = points * 0.5;
             const total = points + contribution;
-            
             document.getElementById('prev-points-label').innerText = points;
             document.getElementById('prev-points-input').value = points;
+            document.getElementById('prev-ifood-contribution').innerText = `R$ ${contribution.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
             document.getElementById('prev-total-value').innerText = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+        }
+
+        // Lógica de Cadastro Pet (Nova)
+        function processPetRegistration() {
+            const isCredit = document.getElementById('pay-credit').checked;
+            
+            if(isCredit) {
+                // Mostra Pop-up especial para cartão
+                const modal = document.getElementById('app-modal');
+                const icon = document.getElementById('modal-icon');
+                const title = document.getElementById('modal-title');
+                const body = document.getElementById('modal-body');
+                const btnPrimary = document.getElementById('modal-primary-btn');
+                const btnSecondary = document.getElementById('modal-secondary-btn');
+
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl bg-blue-50 text-blue-600";
+                icon.innerHTML = '<i class="fa-solid fa-credit-card"></i>';
+                title.innerText = "Pagamento por Cartão";
+                body.innerHTML = `Para finalizar o processo de pagamento, você deve cadastrar e passar o cartão no link abaixo:<br><br><a href="https://meupetclub.com.br/" target="_blank" class="text-red-600 font-bold underline">meupetclub.com.br</a>`;
+                
+                btnPrimary.innerText = "Confirmar Cadastro";
+                btnPrimary.onclick = function() {
+                    closeModal();
+                    showAlert('Cadastro do pet enviado com sucesso!', 'success');
+                };
+                
+                btnSecondary.classList.remove('hidden');
+                btnSecondary.innerText = "Voltar";
+                btnSecondary.onclick = closeModal;
+
+                modal.style.display = 'flex';
+                setTimeout(() => document.getElementById('modal-content').classList.add('scale-100'), 10);
+            } else {
+                // Apenas alerta de sucesso normal
+                showAlert('Cadastro do pet enviado com sucesso!', 'success');
+            }
         }
 
         const subCats = {
@@ -780,7 +865,14 @@
             const icon = document.getElementById('modal-icon');
             const title = document.getElementById('modal-title');
             const body = document.getElementById('modal-body');
+            const btnPrimary = document.getElementById('modal-primary-btn');
+            const btnSecondary = document.getElementById('modal-secondary-btn');
+            
             body.innerText = msg;
+            btnSecondary.classList.add('hidden');
+            btnPrimary.innerText = "Entendido";
+            btnPrimary.onclick = closeModal;
+
             if(type === 'success') {
                 icon.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl bg-green-50 text-green-600";
                 icon.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -812,11 +904,9 @@
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             ctx.scale(ratio, ratio);
-            
             const start = (e) => { drawing = true; draw(e); };
             const stop = () => { drawing = false; ctx.beginPath(); };
             const move = (e) => draw(e);
-
             canvas.addEventListener('mousedown', start);
             canvas.addEventListener('mouseup', stop);
             canvas.addEventListener('mousemove', move);
